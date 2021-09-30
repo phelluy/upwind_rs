@@ -625,5 +625,471 @@ fn main() -> Result<(), Error> {
 Programme Rust niveau 1
 \end_layout
 
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+// command line:
+\end_layout
+
+\begin_layout Plain Layout
+
+// time RAYON_NUM_THREADS=8 cargo run --release
+\end_layout
+
+\begin_layout Plain Layout
+
+use rayon::prelude::*;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+//extern crate faster;
+\end_layout
+
+\begin_layout Plain Layout
+
+//use faster::*;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+const C: f64 = -1.;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+const L: f64 = 1.;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+fn peak(x: f64) -> f64 {
+\end_layout
+
+\begin_layout Plain Layout
+
+    let r2 = x * x;
+\end_layout
+
+\begin_layout Plain Layout
+
+    let eps = 0.1;
+\end_layout
+
+\begin_layout Plain Layout
+
+    let eps2 = eps * eps;
+\end_layout
+
+\begin_layout Plain Layout
+
+    if r2 / eps2 < 1.
+ {
+\end_layout
+
+\begin_layout Plain Layout
+
+        (1.
+ - r2 / eps2).powi(4)
+\end_layout
+
+\begin_layout Plain Layout
+
+    } else {
+\end_layout
+
+\begin_layout Plain Layout
+
+        0.
+\end_layout
+
+\begin_layout Plain Layout
+
+    }
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+fn exact_sol(x: f64, t: f64) -> f64 {
+\end_layout
+
+\begin_layout Plain Layout
+
+    peak(x - C * t - 0.8)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+fn main() {
+\end_layout
+
+\begin_layout Plain Layout
+
+    println!("Init...");
+\end_layout
+
+\begin_layout Plain Layout
+
+    let nx = 10000;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    let dx = L / nx as f64;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    let xc: Vec<f64> = (0..nx + 1).map(|i| i as f64 * dx).collect();
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    let mut un: Vec<f64> = xc.par_iter().map(|x| exact_sol(*x, 0.)).collect();
+\end_layout
+
+\begin_layout Plain Layout
+
+    let mut unp1 = un.clone();
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    let tmax = 0.6;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    let cfl = 0.8;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    let dt = dx / C.abs() * cfl;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    let mut t = 0.;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    println!("Calcul...");
+\end_layout
+
+\begin_layout Plain Layout
+
+    while t < tmax {
+\end_layout
+
+\begin_layout Plain Layout
+
+        // original loop
+\end_layout
+
+\begin_layout Plain Layout
+
+        // for i in 0..nx {
+\end_layout
+
+\begin_layout Plain Layout
+
+        //     un[i] = un[i] - C * dt / dx * (un[i + 1] - un[i]);
+\end_layout
+
+\begin_layout Plain Layout
+
+        // }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        // does not work: immutable borrow
+\end_layout
+
+\begin_layout Plain Layout
+
+        // for (u0,u1) in un.iter_mut().zip(un.iter().skip(1)) {
+\end_layout
+
+\begin_layout Plain Layout
+
+        //     *u0 = *u0 - C * dt / dx * (*u1 - *u0);
+\end_layout
+
+\begin_layout Plain Layout
+
+        // }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        // correct solution with a for loop
+\end_layout
+
+\begin_layout Plain Layout
+
+        // for ((u1, u0), v0) in unp1.iter_mut().zip(un.iter()).zip(un.iter().skip(1))
+ {
+\end_layout
+
+\begin_layout Plain Layout
+
+        //     *u1 = *u0 - C * dt / dx * (*v0 - *u0);
+\end_layout
+
+\begin_layout Plain Layout
+
+        // }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        // parallel loop
+\end_layout
+
+\begin_layout Plain Layout
+
+        unp1.par_iter_mut()
+\end_layout
+
+\begin_layout Plain Layout
+
+            .zip(un.par_iter())
+\end_layout
+
+\begin_layout Plain Layout
+
+            .zip(un.par_iter().skip(1)) // skip the first element: shifted
+ vector
+\end_layout
+
+\begin_layout Plain Layout
+
+            .for_each(|((u1, u0), v0)| *u1 = *u0 - C * dt / dx * (*v0 - *u0));
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        t = t + dt;
+\end_layout
+
+\begin_layout Plain Layout
+
+        unp1[nx] = exact_sol(xc[0], t);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        un.par_iter_mut()
+\end_layout
+
+\begin_layout Plain Layout
+
+            .zip(unp1.par_iter())
+\end_layout
+
+\begin_layout Plain Layout
+
+            .for_each(|(u0, u1)| *u0 = *u1);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+        //println!("t={}, dt={}", t, dt);
+\end_layout
+
+\begin_layout Plain Layout
+
+    }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    println!("Sauve...");
+\end_layout
+
+\begin_layout Plain Layout
+
+    sauv_sol(t, xc, un);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+use std::fs::File;
+\end_layout
+
+\begin_layout Plain Layout
+
+use std::io::BufWriter;
+\end_layout
+
+\begin_layout Plain Layout
+
+use std::io::Write;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+fn sauv_sol(t: f64, xc: Vec<f64>, un: Vec<f64>) {
+\end_layout
+
+\begin_layout Plain Layout
+
+    let meshfile = File::create("trans.dat").unwrap();
+\end_layout
+
+\begin_layout Plain Layout
+
+    let mut meshfile = BufWriter::new(meshfile); // create a buffer for
+ faster writes...
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    un.iter().zip(xc.iter()).for_each(|(u, x)| {
+\end_layout
+
+\begin_layout Plain Layout
+
+        let uex = exact_sol(*x, t);
+\end_layout
+
+\begin_layout Plain Layout
+
+        writeln!(meshfile, "{} {} {}", *x, *u, uex).unwrap();
+\end_layout
+
+\begin_layout Plain Layout
+
+    });
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \end_body
 \end_document
