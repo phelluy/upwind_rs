@@ -1,3 +1,10 @@
+// command line:
+// time RAYON_NUM_THREADS=8 cargo run --release
+use rayon::prelude::*;
+
+//extern crate faster;
+//use faster::*;
+
 const C: f64 = -1.;
 
 const L: f64 = 1.;
@@ -17,24 +24,17 @@ fn exact_sol(x: f64, t: f64) -> f64 {
     peak(x - C * t - 0.8)
 }
 
-use std::io::Error;
+fn main()  {
 
-fn main() -> Result<(), Error> {
-    let nx = 1000;
+    println!("Init...");
+    let nx = 100000;
 
     let dx = L / nx as f64;
 
-    let mut un = vec![0.; nx + 1];
+    let xc: Vec<f64> = (0..nx + 1).map(|i| i as f64 * dx).collect();
 
-    let mut xc = vec![0.; nx + 1];
-
-    for i in 0..nx + 1 {
-        xc[i] = i as f64 * dx;
-    }
-
-    for i in 0..nx + 1 {
-        un[i] = exact_sol(xc[i], 0.);
-    }
+    let mut un: Vec<f64> = xc.par_iter().map(|x| exact_sol(*x, 0.)).collect();
+    let mut unp1 = un.clone();
 
     let tmax = 0.6;
 
@@ -44,27 +44,52 @@ fn main() -> Result<(), Error> {
 
     let mut t = 0.;
 
+    println!("Calcul...");
     while t < tmax {
-        for i in 0..nx {
-            un[i] = un[i] - C * dt / dx * (un[i + 1] - un[i]);
-        }
+        // original loop
+        // for i in 0..nx {
+        //     un[i] = un[i] - C * dt / dx * (un[i + 1] - un[i]);
+        // }
+
+        // does not work immutable borrow
+        // for (u0,u1) in un.iter_mut().zip(un.iter().skip(1)) {
+        //     *u0 = *u0 - C * dt / dx * (*u1 - *u0);
+        // }
+        // correct solution with a for loop
+        // for ((u1, u0), v0) in unp1.iter_mut().zip(un.iter()).zip(un.iter().skip(1)) {
+        //     *u1 = *u0 - C * dt / dx * (*v0 - *u0);
+        // }
+
+        unp1.par_iter_mut()
+            .zip(un.par_iter())
+            .zip(un.par_iter().skip(1))
+            .for_each(|((u1, u0), v0)| *u1 = *u0 - C * dt / dx * (*v0 - *u0));
+
         t = t + dt;
-        un[nx] = exact_sol(xc[0], t);
+        unp1[nx] = exact_sol(xc[0], t);
 
-        println!("t={}, dt={}", t, dt);
+        un.par_iter_mut()
+            .zip(unp1.par_iter())
+            .for_each(|(u0, u1)| *u0 = *u1);
+
+        //println!("t={}, dt={}", t, dt);
     }
 
-    use std::fs::File;
-    use std::io::{Write};
 
-    let mut meshfile = File::create("trans.dat")?;
-    //let mut meshfile = BufWriter::new(meshfile); // create a buffer for faster writes...
+    println!("Sauve...");
+    sauv_sol(t, xc, un);
+}
 
-    for i in 0..nx + 1 {
-        let uex = exact_sol(xc[i], t);
-        let u = un[i];
-        writeln!(meshfile, "{} {} {}", xc[i], u, uex)?;
-    }
+use std::fs::File;
+use std::io::BufWriter;
+use std::io::Write;
 
-    Ok(())
+fn sauv_sol(t: f64, xc: Vec<f64>, un: Vec<f64>)  {
+    let meshfile = File::create("trans.dat").unwrap();
+    let mut meshfile = BufWriter::new(meshfile); // create a buffer for faster writes...
+
+    un.iter().zip(xc.iter()).for_each(|(u,x)| {
+        let uex = exact_sol(*x, t);
+        writeln!(meshfile, "{} {} {}", *x, *u, uex).unwrap();
+    });
 }
