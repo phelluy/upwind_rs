@@ -24,10 +24,9 @@ fn exact_sol(x: f64, t: f64) -> f64 {
     peak(x - C * t - 0.8)
 }
 
-fn main()  {
-
+fn main() {
     println!("Init...");
-    let nx = 10000;
+    let nx = 100;
 
     let dx = L / nx as f64;
 
@@ -77,20 +76,21 @@ fn main()  {
         //println!("t={}, dt={}", t, dt);
     }
 
-
     println!("Sauve...");
     sauv_sol(t, xc, un);
+    // cannot use xc anymore: xc has been moved.
+    //println!("xc={:?}",xc);
 }
 
 use std::fs::File;
 use std::io::BufWriter;
 use std::io::Write;
 
-fn sauv_sol(t: f64, xc: Vec<f64>, un: Vec<f64>)  {
+fn sauv_sol(t: f64, xc: Vec<f64>, un: Vec<f64>) {
     let meshfile = File::create("trans.dat").unwrap();
     let mut meshfile = BufWriter::new(meshfile); // create a buffer for faster writes...
 
-    un.iter().zip(xc.iter()).for_each(|(u,x)| {
+    un.iter().zip(xc.iter()).for_each(|(u, x)| {
         let uex = exact_sol(*x, t);
         writeln!(meshfile, "{} {} {}", *x, *u, uex).unwrap();
     });
