@@ -45,21 +45,6 @@ fn main() {
 
     println!("Calcul...");
     while t < tmax {
-        // original loop
-        // for i in 0..nx {
-        //     un[i] = un[i] - C * dt / dx * (un[i + 1] - un[i]);
-        // }
-
-        // does not work: immutable borrow
-        // for (u0,u1) in un.iter_mut().zip(un.iter().skip(1)) {
-        //     *u0 = *u0 - C * dt / dx * (*u1 - *u0);
-        // }
-
-        // correct solution with a for loop
-        // for ((u1, u0), v0) in unp1.iter_mut().zip(un.iter()).zip(un.iter().skip(1)) {
-        //     *u1 = *u0 - C * dt / dx * (*v0 - *u0);
-        // }
-
         // parallel loop
         unp1.par_iter_mut()
             .zip(un.par_iter())
@@ -78,8 +63,6 @@ fn main() {
 
     println!("Sauve...");
     sauv_sol(t, xc, un);
-    // cannot use xc anymore: xc has been moved.
-    //println!("xc={:?}",xc);
 }
 
 use std::fs::File;
