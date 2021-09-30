@@ -7,4 +7,4 @@ edition = "2018"
 
 [dependencies]
 rayon="*"
-#faster="0.5.0"
+faster="0.5.1"
