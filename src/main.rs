@@ -1,7 +1,3 @@
-use std::fs::File;
-use std::io::BufWriter;
-use std::io::{Error, Write};
-
 const C: f64 = -1.;
 
 const L: f64 = 1.;
@@ -20,6 +16,8 @@ fn peak(x: f64) -> f64 {
 fn exact_sol(x: f64, t: f64) -> f64 {
     peak(x - C * t - 0.8)
 }
+
+use std::io::Error;
 
 fn main() -> Result<(), Error> {
     let nx = 1000;
@@ -48,7 +46,7 @@ fn main() -> Result<(), Error> {
 
     while t < tmax {
         for i in 0..nx {
-            un[i] = un[i] - C * dt / dx * (un[i+1] - un[i]);
+            un[i] = un[i] - C * dt / dx * (un[i + 1] - un[i]);
         }
         t = t + dt;
         un[nx] = exact_sol(xc[0], t);
@@ -56,11 +54,14 @@ fn main() -> Result<(), Error> {
         println!("t={}, dt={}", t, dt);
     }
 
-    let meshfile = File::create("trans.dat")?;
-    let mut meshfile = BufWriter::new(meshfile); // create a buffer for faster writes...
+    use std::fs::File;
+    use std::io::{Write};
+
+    let mut meshfile = File::create("trans.dat")?;
+    //let mut meshfile = BufWriter::new(meshfile); // create a buffer for faster writes...
 
     for i in 0..nx + 1 {
-        let uex = exact_sol(xc[i],t);
+        let uex = exact_sol(xc[i], t);
         let u = un[i];
         writeln!(meshfile, "{} {} {}", xc[i], u, uex)?;
     }
