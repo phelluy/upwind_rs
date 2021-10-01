@@ -33,6 +33,7 @@ fn main() {
     let xc: Vec<f64> = (0..nx + 1).map(|i| i as f64 * dx).collect();
 
     let mut un: Vec<f64> = xc.par_iter().map(|x| exact_sol(*x, 0.)).collect();
+    
     let mut unp1 = un.clone();
 
     let tmax = 0.6;
@@ -42,6 +43,8 @@ fn main() {
     let dt = dx / C.abs() * cfl;
 
     let mut t = 0.;
+
+    sauv_sol(t, &xc, &un, "trans0.dat");
 
     println!("Calcul...");
     while t < tmax {
@@ -77,7 +80,7 @@ fn main() {
     }
 
     println!("Sauve...");
-    sauv_sol(t, xc, un);
+    sauv_sol(t, &xc, &un, "trans1.dat");
     // cannot use xc anymore: xc has been moved.
     //println!("xc={:?}",xc);
 }
@@ -86,8 +89,8 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::io::Write;
 
-fn sauv_sol(t: f64, xc: Vec<f64>, un: Vec<f64>) {
-    let meshfile = File::create("trans.dat").unwrap();
+fn sauv_sol(t: f64, xc: &Vec<f64>, un: &Vec<f64>, filename: &str) {
+    let meshfile = File::create(filename).unwrap();
     let mut meshfile = BufWriter::new(meshfile); // create a buffer for faster writes...
 
     un.iter().zip(xc.iter()).for_each(|(u, x)| {
