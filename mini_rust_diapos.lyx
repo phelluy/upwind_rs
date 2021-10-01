@@ -1,0 +1,1858 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass beamer
+\begin_preamble
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\setbeamertemplate{navigation symbols}{}
+
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber/\inserttotalframenumber
+}
+
+\usepackage{tikz}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding utf8
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Kinetic schemes for conservation laws.
+ Applications to MHD and Maxwell
+\end_layout
+
+\begin_layout Author
+Philippe Helluy
+\end_layout
+
+\begin_layout Institute
+Université de Strasbourg, IRMA CNRS, Inria Tonus
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Contents
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Kinetic algorithm
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Conservation laws
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+System of 
+\begin_inset Formula $m$
+\end_inset
+
+ conservation laws in dimension 
+\begin_inset Formula $d$
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\partial_{t}W+\sum_{i=1}^{d}\partial_{i}Q^{i}(W)=0,
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Unknown: 
+\begin_inset Formula $W(X,t)\in\mathbb{R}^{m}$
+\end_inset
+
+, space variable: 
+\begin_inset Formula $X=(x_{1}\ldots x_{d})$
+\end_inset
+
+, time variable: 
+\begin_inset Formula $t$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\partial_{i}=\frac{\partial}{\partial x_{i}}$
+\end_inset
+
+, 
+\begin_inset Formula $\partial_{t}=\frac{\partial}{\partial t}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Hyperbolicity: let 
+\begin_inset Formula $N\in\mathbb{R}^{d}$
+\end_inset
+
+ be an arbitrary space direction.
+ The flux 
+\begin_inset Formula 
+\[
+Q(W,N)=\sum_{i=1}^{d}N_{i}Q^{i}(W)
+\]
+
+\end_inset
+
+ is supposed to be hyperbolic, i.e.
+ the jacobian of the flux 
+\begin_inset Formula $d_{W}Q(W,N)$
+\end_inset
+
+ is diagonalizable with real eigenvalues.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Kinetic representation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+We consider a set of 
+\begin_inset Formula $d+1$
+\end_inset
+
+ (or more) kinetic velocities 
+\begin_inset Formula $V_{k}$
+\end_inset
+
+, 
+\begin_inset Formula $k=0\ldots d$
+\end_inset
+
+, associated to 
+\series bold
+vectorial
+\series default
+ kinetic functions 
+\begin_inset Formula $F_{k}(W)\in\mathbb{R}^{m}$
+\end_inset
+
+.
+ The macroscopic data are related to the kinetic data by
+\begin_inset Formula 
+\[
+W=\sum_{k}F_{k}.
+\]
+
+\end_inset
+
+We also define 
+\begin_inset Quotes eld
+\end_inset
+
+Maxwellian
+\begin_inset Quotes erd
+\end_inset
+
+ equilibrium functions 
+\begin_inset Formula $M_{k}(W)\in\mathbb{R}^{m}$
+\end_inset
+
+ such that
+\begin_inset Formula 
+\[
+W=\sum_{k}M_{k}(W).
+\]
+
+\end_inset
+
+The kinetic BGK representation is given by transport equations with relaxation
+ source terms 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bouchut1999construction,aregba2000discrete"
+literal "false"
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\partial_{t}F_{k}+V_{k}\cdot\nabla_{X}F_{k}=\frac{1}{\tau}\left(M_{k}(W)-F_{k}\right).
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Kinetic representation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+When the relaxation time 
+\begin_inset Formula $\tau\to0^{+}$
+\end_inset
+
+, the kinetic model is formally equivalent to the initial system of conservation
+ laws if
+\begin_inset Formula 
+\[
+W=\sum_{k}M_{k}(W),\quad\sum_{k}V_{k}^{i}M_{k}(W)=Q^{i}(W),\quad i=1,\ldots,d.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Linear system of size 
+\begin_inset Formula $m(d+1)\times m(d+1)$
+\end_inset
+
+ for finding the Maxwellian.
+ One expects a unique solution.
+\end_layout
+
+\begin_layout Itemize
+In practice it is difficult to solve directly the BGK system.
+ A splitting is preferable.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Kinetic algorithm
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Start with 
+\begin_inset Formula $W(\cdot,0)$
+\end_inset
+
+.
+ Construct kinetic vectors 
+\begin_inset Formula $F_{k}(\cdot,0)$
+\end_inset
+
+ such that 
+\begin_inset Formula $W=\sum_{k}F_{k}$
+\end_inset
+
+ (not unique);
+\end_layout
+
+\begin_layout Enumerate
+solve the free transport equations 
+\begin_inset Formula $\partial_{t}F_{k}+V_{k}^{i}\cdot\partial_{i}F_{k}=0$
+\end_inset
+
+ for a duration of 
+\begin_inset Formula $\Delta t$
+\end_inset
+
+.
+ This gives
+\begin_inset Formula 
+\[
+F_{k}(X,\Delta t^{-})=F_{k}(X-\Delta tV_{k},0);
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+define 
+\begin_inset Formula 
+\[
+W(\cdot,\Delta t)=\sum_{k}F_{k}(\cdot,\Delta t^{-});
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+apply a relaxation
+\begin_inset Formula 
+\[
+F_{k}(\cdot,\Delta t^{+})=\omega M_{k}(W(\cdot,\Delta t))+(1-\omega)F_{k}(\cdot,\Delta t^{-}).
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Interesting cases: 
+\begin_inset Formula $\omega=1$
+\end_inset
+
+, 
+\begin_inset Formula $\omega=2$
+\end_inset
+
+, 
+\begin_inset Formula $\omega$
+\end_inset
+
+ is a matrix.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Flux error representation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+During the computations, one expects that 
+\begin_inset Formula $\sum_{k}V_{k}^{i}F_{k}\simeq Q^{i}(W)$
+\end_inset
+
+, we thus introduce the 
+\series bold
+approximated flux 
+\begin_inset Formula $Z$
+\end_inset
+
+, 
+\series default
+and the 
+\series bold
+flux error 
+\begin_inset Formula $Y$
+\end_inset
+
+
+\series default
+
+\begin_inset Formula 
+\[
+Z^{i}=\sum_{k}V_{k}^{i}F_{k},\quad Y^{i}=Z^{i}-Q^{i}(W).
+\]
+
+\end_inset
+
+The kinetic algorithm is then a functional operator 
+\begin_inset Formula $\mathcal{M}(\Delta t)$
+\end_inset
+
+ that maps 
+\begin_inset Formula $(W(\cdot,0),Y^{i}(\cdot,0))$
+\end_inset
+
+ to 
+\begin_inset Formula $(W(\cdot,\Delta t),Y^{i}(\cdot,\Delta t^{+}))$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+The operator 
+\begin_inset Formula $\mathcal{M}$
+\end_inset
+
+ is made of (linear) shift operations and (non-linear) local relaxations.
+ 
+\end_layout
+
+\begin_layout Enumerate
+In the 
+\begin_inset Formula $(W,Y^{i})$
+\end_inset
+
+ variables, when 
+\begin_inset Formula $\omega=2$
+\end_inset
+
+, the relaxation operation simply reads
+\begin_inset Formula 
+\[
+Y^{i}(\cdot,\Delta t^{+})=-Y^{i}(\cdot,\Delta t^{-}).
+\]
+
+\end_inset
+
+This induces fast oscillations of the flux error.
+ For the analysis it is better to replace 
+\begin_inset Formula $\mathcal{M}$
+\end_inset
+
+ by 
+\begin_inset Formula $\mathcal{M}\circ\mathcal{M}$
+\end_inset
+
+.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Equivalent equation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+In principle it is now easy, while tedious, to compute the equivalent equation
+ of the kinetic algorithm: simply compute a Taylor expansion of 
+\begin_inset Formula 
+\[
+\frac{\mathcal{M}(\Delta t/2)-\mathcal{M}(-\Delta t/2)}{\Delta t}
+\]
+
+\end_inset
+
+with respect to 
+\begin_inset Formula $\Delta t$
+\end_inset
+
+ up to order 
+\begin_inset Formula $O(\Delta t^{2})$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+The term 
+\begin_inset Formula $X-\Delta tV_{k}$
+\end_inset
+
+ in the shift operation generates partial derivatives in space.
+\end_layout
+
+\begin_layout Itemize
+Because of symmetries, when 
+\begin_inset Formula $\omega=2$
+\end_inset
+
+, the even order terms vanish.
+\end_layout
+
+\begin_layout Itemize
+And finally, the relaxation introduce non linearities.
+ We end up with a system of non-linear conservation laws of first order
+ in 
+\begin_inset Formula $(W,Y^{i})$
+\end_inset
+
+.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Frame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+One-dimensional case
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+We consider the case 
+\begin_inset Formula $d=1$
+\end_inset
+
+, we have 
+\begin_inset Formula $d+1=2$
+\end_inset
+
+ kinetic velocities.
+ We take 
+\begin_inset Formula $V_{0}=-\lambda$
+\end_inset
+
+, 
+\begin_inset Formula $V_{1}=\lambda$
+\end_inset
+
+, 
+\begin_inset Formula $W=F_{0}+F_{1}$
+\end_inset
+
+.
+ The equivalent equation for 
+\begin_inset Formula $\omega=2$
+\end_inset
+
+ at order 
+\begin_inset Formula $O(\Delta t^{2})$
+\end_inset
+
+ is 
+\begin_inset Formula 
+\[
+\partial_{t}W+\partial_{x}Q(W)=0,
+\]
+
+\end_inset
+
+(of course) and
+\begin_inset Formula 
+\[
+\partial_{t}Y-d_{W}Q(W)\partial_{x}Y=0.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+We observe that the system is hyperbolic and that the waves for 
+\begin_inset Formula $W$
+\end_inset
+
+ and 
+\begin_inset Formula $Y$
+\end_inset
+
+ move in opposite direction.
+\end_layout
+
+\begin_layout Itemize
+No assumption of smallness of 
+\begin_inset Formula $Y$
+\end_inset
+
+!
+\end_layout
+
+\begin_layout Itemize
+It is necessary to analyze the third order terms to find the sub-characteristic
+ stability condition
+\begin_inset Formula 
+\[
+\lambda\geq\max_{1\leq i\leq m}\left|\lambda_{i}(W)\right|,
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\lambda_{i}(W)$
+\end_inset
+
+ are the eigenvalues of 
+\begin_inset Formula $d_{W}Q(W)$
+\end_inset
+
+.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Two-dimensional case
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+We consider the case 
+\begin_inset Formula $d=2$
+\end_inset
+
+, we have 
+\begin_inset Formula $d+1=3$
+\end_inset
+
+ kinetic velocities.
+ We take 
+\begin_inset Formula 
+\[
+V_{k}=\lambda\left(\begin{array}{c}
+\cos\frac{2k\pi}{3}\\
+\sin\frac{2k\pi}{3}
+\end{array}\right)
+\]
+
+\end_inset
+
+The equivalent equation on 
+\begin_inset Formula $W$
+\end_inset
+
+ for 
+\begin_inset Formula $\omega=2$
+\end_inset
+
+ at order 
+\begin_inset Formula $O(\Delta t^{2})$
+\end_inset
+
+ is 
+\begin_inset Formula 
+\[
+\partial_{t}W+\partial_{1}Q^{1}(W)+\partial_{2}Q^{2}(W)=0,
+\]
+
+\end_inset
+
+(of course).
+ Setting 
+\begin_inset Formula $A^{i}(W)=d_{W}Q^{i}(W)$
+\end_inset
+
+, the equation for 
+\begin_inset Formula $Y$
+\end_inset
+
+ is 
+\begin_inset Formula 
+\begin{alignat*}{1}
+\partial_{t}\left(\begin{array}{c}
+Y_{1}\\
+Y_{2}
+\end{array}\right)+\left(\begin{array}{cc}
+\frac{\lambda}{2}I-A^{1}(W) & 0\\
+-A^{2}(W) & -\frac{\lambda}{2}
+\end{array}\right)\partial_{1}\left(\begin{array}{c}
+Y_{1}\\
+Y_{2}
+\end{array}\right)+\\
+\left(\begin{array}{cc}
+0 & -\frac{\lambda}{2}I-A^{1}(W)\\
+-\frac{\lambda}{2} & -A^{2}(W)
+\end{array}\right)\partial_{2}\left(\begin{array}{c}
+Y_{1}\\
+Y_{2}
+\end{array}\right) & =O(\Delta t^{2}),
+\end{alignat*}
+
+\end_inset
+
+We can prove that the equivalent system is symmetrizable, and thus hyperbolic,
+ if 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ is large enough (sub-characteristic condition).
+\end_layout
+
+\end_deeper
+\begin_layout Frame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Magnetohydrodynamics
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Magnetohydrodynamics (MHD) equations
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+We consider the MHD equations with Divergence Cleaning 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "dedner2002hyperbolic"
+literal "false"
+
+\end_inset
+
+ 
+\begin_inset Formula 
+\[
+W=\left(\begin{array}{c}
+\rho\\
+\rho U\\
+\mathcal{E}\\
+B\\
+\psi
+\end{array}\right),\quad Q(W,N)=\left(\begin{array}{c}
+\rho U\cdot N\\
+\rho(U\cdot N)U+(p+\frac{B\cdot B}{2})N-(B\cdot N)B\\
+(\mathcal{E}+p+\frac{B\cdot B}{2})U\cdot N-(B\cdot U)(B\cdot N)\\
+(U\cdot N)B-(B\cdot N)U+\psi N\\
+c_{h}^{2}B\cdot N
+\end{array}\right).
+\]
+
+\end_inset
+
+The velocity and magnetic field are denoted 
+\begin_inset Formula 
+\[
+U=(u_{1},u_{2},u_{3})^{T},\quad B=(b_{1},b_{2},b_{3})^{T},
+\]
+
+\end_inset
+
+the pressure is given by a perfect-gas law with a constant polytropic exponent
+ 
+\begin_inset Formula $\gamma>1$
+\end_inset
+
+
+\begin_inset Formula 
+\[
+p=(\gamma-1)(\mathcal{E}-\rho\frac{U\cdot U}{2}-\frac{B\cdot B}{2}).
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Lattice-Boltzmann scheme
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+In the Lattice-Boltzmann approach, one considers a structured cartesian
+ grid of step 
+\begin_inset Formula $\Delta x$
+\end_inset
+
+ and four kinetic velocities
+\begin_inset Formula 
+\[
+V_{k}=\lambda\left(\begin{array}{c}
+\cos\frac{k\pi}{2}\\
+\sin\frac{k\pi}{2}
+\end{array}\right),\quad k=0,\ldots,3.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Because 
+\begin_inset Formula $4>d+1$
+\end_inset
+
+, the Maxwellian is not unique 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "fevrier2014extension"
+literal "false"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+With a time-step 
+\begin_inset Formula $\Delta t=\Delta x/\lambda$
+\end_inset
+
+, the transport steps can be exactly solved by simple shifts.
+\end_layout
+
+\begin_layout Itemize
+The scheme is then the scheme of 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "dubois2014simulation"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+GPU implementation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+We have implemented the LBM method with PyOpenCL and an efficient memory
+ layout.
+ The algorithm is memory bound.
+ We are not far from the optimal memory bandwidth 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "baty:hal-02965967"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename ../patapon/mhd/doc/img_beamer/speedup_gpu.png
+	lyxscale 30
+	width 80page%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Numerical results
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Orszag-Tang vortex on a 
+\begin_inset Formula $4096\times4096$
+\end_inset
+
+ grid and 
+\begin_inset Formula $\omega=1.8$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename ../patapon/mhd/doc/img_beamer/orsag_tang_4096.png
+	lyxscale 30
+	width 80text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+s
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Tilt instability
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Test case described in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "baty:hal-02965967"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Instability with appearance of a current sheet (Dirac measure on a curve).
+\end_layout
+
+\begin_layout Itemize
+We measure the correct instability rate.
+ 
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename ../patapon/mhd/doc/img_beamer/current_sheet.png
+	lyxscale 30
+	width 80text%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Explicit, CFL-free, Discontinuous Galerkin
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Discontinuous Galerkin (DG) solver
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+The main task is to solve a single transport equation
+\begin_inset Formula 
+\[
+\partial_{t}f+V\cdot\nabla f=0
+\]
+
+\end_inset
+
+in a domain 
+\begin_inset Formula $\Omega$
+\end_inset
+
+ with a complex geometry.
+ The characteristic method is no more a good idea (problems with stability,
+ conservation, boundaries).
+\end_layout
+
+\begin_layout Itemize
+Unstructured mesh of 
+\begin_inset Formula $\Omega$
+\end_inset
+
+ made of tetrahedral cells.
+\end_layout
+
+\begin_layout Itemize
+The transported function 
+\begin_inset Formula $f$
+\end_inset
+
+ is approximated in cell 
+\begin_inset Formula $L$
+\end_inset
+
+ by a linear expansion on basis functions 
+\begin_inset Formula 
+\begin{equation}
+f(x,n\Delta t)\simeq f_{L}^{n}(x)=\sum_{j}f_{L,j}^{n}\psi_{j}^{L}(x),\quad x\in L.\label{eq:basis_expansion}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+The unknowns are the coefficients 
+\begin_inset Formula $f_{L,j}^{n}$
+\end_inset
+
+ of the linear expansion.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Implicit DG
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Implicit DG approximation scheme for going from time step 
+\begin_inset Formula $n-1$
+\end_inset
+
+ to time step 
+\begin_inset Formula $n$
+\end_inset
+
+: for all cell 
+\begin_inset Formula $L$
+\end_inset
+
+ and 
+\begin_inset Formula $\forall i$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{equation}
+\int_{L}\frac{f_{L}^{n}-f_{L}^{n-1}}{\Delta t}\psi_{i}^{L}-\int_{L}V\cdot\nabla\psi_{i}^{L}f_{L}^{n}+\int_{\partial L}\left(V\cdot N{}^{+}f_{L}^{n}+V\cdot N{}^{-}f_{R}^{n}\right)\psi_{i}^{L}=0.\label{eq:dg_scheme}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $R$
+\end_inset
+
+ denotes the neighbor cells along 
+\begin_inset Formula $\partial L$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $V\cdot N^{\,+}=\max(V\cdot N,0),$
+\end_inset
+
+ 
+\begin_inset Formula $V\cdot N^{\,-}=\min(V\cdot N,0).$
+\end_inset
+
+ We thus use an upwind numerical flux.
+ 
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $N$
+\end_inset
+
+ is the unit normal vector on 
+\begin_inset Formula $\partial L$
+\end_inset
+
+ oriented from 
+\begin_inset Formula $L$
+\end_inset
+
+ to 
+\begin_inset Formula $R$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{tikzpicture}[scale=1]
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+% intersection
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+draw[thick] (0,1) -- (0,0);
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+draw[->, thick, color=red] (0,0.5) -- (0.4,0.5);
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+node[below, color=red] at (0.4,0.5) {$N_{LR}$}; 
+\backslash
+node[above] (n1) at (-2,2) {$
+\backslash
+partial L
+\backslash
+cap
+\backslash
+partial R$}; 
+\backslash
+draw[->, thick] (n1) -- (0,0.8);
+\end_layout
+
+\begin_layout Plain Layout
+
+% left 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+draw[thick] (-1,-0.5) -- (0,0); 
+\backslash
+draw[thick] (-1.2,1.4) -- (0,1); 
+\backslash
+draw[thick] (-1.2,1.4) -- (-1,-0.5); 
+\backslash
+node[above right] at (-1.05,-0.4) {$L$};
+\end_layout
+
+\begin_layout Plain Layout
+
+% right 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+draw[thick] (1,-0.5) -- (0,0); 
+\backslash
+draw[thick] (1.1,0.8) -- (0,1); 
+\backslash
+draw[thick] (1.1,0.8) -- (1,-0.5); 
+\backslash
+node[below left] at (1.1,0.85) {$R$};
+\end_layout
+
+\begin_layout Plain Layout
+
+% other quadrangles
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+draw[thick] (0,0) -- (-0.1,-0.6); 
+\backslash
+draw[thick] (0,1) -- (0.1,1.6); 
+\backslash
+draw[thick] (-1,-0.5) -- (-1.5,-0.9); 
+\backslash
+draw[thick] (-1.2,1.4) -- (-1.6,1.5); 
+\backslash
+draw[thick] (1,-0.5) -- (1.3,-0.7); 
+\backslash
+draw[thick] (1.1,0.8) -- (1.5,1); 
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{tikzpicture}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename ../patapon/mhd/doc/img_beamer/cell_geom.png
+	lyxscale 30
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Downwind algorithm
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+The scheme seems to be implicit, but it is actually explicit.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename ../patapon/mhd/doc/img_beamer/downwind_graph.png
+	lyxscale 30
+	width 60text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+The solution can be explicitly computed by following a topological ordering
+ of a Direct Acyclic Graph (DAG), e.g.
+ 3, 7, 0, 15, 1, etc.
+\end_layout
+
+\begin_layout Itemize
+In addition there is parallelism: (3,7) can be computed in parallel, then
+ (0,15,1) can be computed in parallel, etc.
+\end_layout
+
+\begin_layout Itemize
+Low storage: the solution can be replaced in memory during the computations.
+\end_layout
+
+\end_deeper
+\begin_layout Frame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Rust implementation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+We have implemented the downwind algorithm in Rust:
+\end_layout
+
+\begin_layout Itemize
+Recent programming language (2010) oriented towards concision, speed and
+ security.
+\end_layout
+
+\begin_layout Itemize
+Most common bugs are avoided at compile time: memory leaks and segfaults,
+ uninitialized data, race conditions.
+\end_layout
+
+\begin_layout Itemize
+Automatic parallelization tools: if the sequential code works, the parallel
+ version is guaranteed to be correct.
+\end_layout
+
+\begin_layout Itemize
+Fast.
+ More details in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "gerhard:hal-03218086"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename ../patapon/mhd/doc/img_beamer/speedup_mem.png
+	lyxscale 30
+	width 80text%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Numerical results
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Maxwell's equation: 
+\begin_inset Formula $W=(E^{T},H^{T})^{T},$
+\end_inset
+
+ with electric field 
+\begin_inset Formula $E\in\mathbb{R}^{3}$
+\end_inset
+
+ and magnetic field 
+\begin_inset Formula $H\in\mathbb{R}^{3}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Maxwell flux: 
+\begin_inset Formula 
+\[
+Q(W,N)=\left(\begin{array}{c}
+-N\times H\\
+N\times E
+\end{array}\right).
+\]
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Unstructured mesh of the unit cube made with large and small cells
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename ../patapon/mhd/doc/img_beamer/mesh_refined.png
+	lyxscale 30
+	width 80text%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Numerical results
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+We compute a plane wave on the above mesh.
+\end_layout
+
+\begin_layout Itemize
+We check second order accuracy and the CFL-less feature
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename ../patapon/mhd/doc/img_beamer/wave_cfl.png
+	lyxscale 30
+	width 80text%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Conclusion
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+The kinetic approach is a generalization of the LBM:
+\end_layout
+
+\begin_layout Itemize
+Can handle arbitrary Mach flows.
+\end_layout
+
+\begin_layout Itemize
+Very fast computations on Cartesian grids.
+\end_layout
+
+\begin_layout Itemize
+Construction of CFL-free explicit DG scheme on unstructured meshes.
+\end_layout
+
+\begin_layout Itemize
+Equivalent equation: useful theoretical tool (stability analysis, boundary
+ conditions, behavior of hidden variables).
+\end_layout
+
+\begin_layout Standard
+Future works: boundary conditions, better parallelism (IMEX approach), other
+ applications (cavitation).
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 3
+status open
+
+\begin_layout Plain Layout
+allowframebreaks
+\end_layout
+
+\end_inset
+
+
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Bibliography
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+tiny
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+btprint "btPrintCited"
+bibfiles "../patapon/mhd/doc/spring_mhd_lbm"
+options "alpha"
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
