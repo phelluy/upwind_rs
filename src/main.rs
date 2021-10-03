@@ -26,14 +26,13 @@ fn exact_sol(x: f64, t: f64) -> f64 {
 
 fn main() {
     println!("Init...");
-    let nx = 100;
+    let nx = 1000;
 
     let dx = L / nx as f64;
 
     let xc: Vec<f64> = (0..nx + 1).map(|i| i as f64 * dx).collect();
 
     let mut un: Vec<f64> = xc.par_iter().map(|x| exact_sol(*x, 0.)).collect();
-    
     let mut unp1 = un.clone();
 
     let tmax = 0.6;
@@ -48,6 +47,21 @@ fn main() {
 
     println!("Calcul...");
     while t < tmax {
+        // original loop
+        // for i in 0..nx {
+        //     un[i] = un[i] - C * dt / dx * (un[i + 1] - un[i]);
+        // }
+
+        // does not work: immutable borrow
+        // for (u0,u1) in un.iter_mut().zip(un.iter().skip(1)) {
+        //     *u0 = *u0 - C * dt / dx * (*u1 - *u0);
+        // }
+
+        // correct solution with a for loop
+        // for ((u1, u0), v0) in unp1.iter_mut().zip(un.iter()).zip(un.iter().skip(1)) {
+        //     *u1 = *u0 - C * dt / dx * (*v0 - *u0);
+        // }
+
         // parallel loop
         unp1.par_iter_mut()
             .zip(un.par_iter())

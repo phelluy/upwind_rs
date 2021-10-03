@@ -7,8 +7,12 @@
 \textclass beamer
 \begin_preamble
 
+\usepackage{multicol} 
 \end_preamble
 \use_default_options false
+\begin_modules
+multicol
+\end_modules
 \maintain_unincluded_children false
 \language english
 \language_package default
@@ -85,7 +89,7 @@ Mini introduction to Rust
 \end_layout
 
 \begin_layout Author
-Philippe Helluy
+Philippe Helluy, Victor Michel-Dansac
 \end_layout
 
 \begin_layout Institute
@@ -223,6 +227,7 @@ inline false
 status open
 
 \begin_layout Plain Layout
+
 cargo new bonjour; cd bonjour
 \end_layout
 
@@ -242,6 +247,7 @@ inline false
 status open
 
 \begin_layout Plain Layout
+
 cargo run
 \end_layout
 
@@ -277,10 +283,10 @@ The file Cargo.toml is an important config file.
 
 \begin_layout Frame
 \begin_inset Argument 4
-status collapsed
+status open
 
 \begin_layout Plain Layout
-Downwind algorithm
+Upwind transport solver
 \end_layout
 
 \end_inset
@@ -290,8 +296,285 @@ Downwind algorithm
 
 \begin_deeper
 \begin_layout Standard
-The scheme seems to be implicit, but it is actually explicit.
- 
+Transport equation at velocity 
+\begin_inset Formula $c<0$
+\end_inset
+
+, with unknown 
+\begin_inset Formula $u(x,t)$
+\end_inset
+
+, 
+\begin_inset Formula $x\in\mathbb{R}$
+\end_inset
+
+, 
+\begin_inset Formula $t\in]0,T[,$
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\frac{\partial u}{\partial t}+c\frac{\partial u}{\partial x}=0,\quad u(x,0)=u^{0}(x).
+\]
+
+\end_inset
+
+The exact solution is
+\begin_inset Formula 
+\[
+u(x,t)=u^{0}(x-ct).
+\]
+
+\end_inset
+
+Upwind finite difference scheme, 
+\begin_inset Formula 
+\[
+u_{i}^{n}\simeq u(x_{i},t_{n}),\quad x_{i}=i\Delta x,\quad t_{n}=n\Delta t,
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\frac{u_{i}^{n+1}-u_{i}^{n}}{\Delta t}+c\frac{u_{i+1}^{n}-u_{i}^{n}}{\Delta x}=0,\quad u_{i}^{0}=u^{0}(x_{i}).
+\]
+
+\end_inset
+
+We store 
+\begin_inset Formula $u_{i}^{n}$
+\end_inset
+
+ at time 
+\begin_inset Formula $n$
+\end_inset
+
+ in the array 
+\begin_inset Formula $\texttt{un[i]}$
+\end_inset
+
+, 
+\begin_inset Formula $\texttt{0\ensuremath{\leq}i<nx+1}$
+\end_inset
+
+.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+Rust code
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Variables are immutable by default.
+\end_layout
+
+\begin_layout Itemize
+An object passed to a function cannot be used anymore: use reference instead.
+\end_layout
+
+\begin_layout Itemize
+Only one mutable reference or several immutable references allowed at a
+ time.
+\end_layout
+
+\begin_layout Itemize
+The compiler messages are generally helpful.
+ Cargo clippy gives hints about what can be improved.
+\end_layout
+
+\begin_layout Itemize
+It is recommended to use iterators for efficient and robust programs.
+ Use of two different arrays for storing 
+\begin_inset Formula $u_{i}^{n}$
+\end_inset
+
+ and 
+\begin_inset Formula $u_{i}^{n+1}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Automatic parallelism with the rayon library, without race condition.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status open
+
+\begin_layout Plain Layout
+A more complex example: lattice Boltzmann solver
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Resolution of a PDE on a regular mesh split into 
+\begin_inset Quotes eld
+\end_inset
+
+boxes
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The computations on red boxes depend only on blue boxes and vice versa.
+\end_layout
+
+\begin_layout Itemize
+Sort the array of boxes by color.
+ Then 
+\begin_inset Quotes eld
+\end_inset
+
+split at mut
+\begin_inset Quotes erd
+\end_inset
+
+ the array: separate access to the blue and red boxes.
+\end_layout
+
+\begin_layout Itemize
+Automatic parallelization, without race condition.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{multicols}{2}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename damier-boxlab.png
+	lyxscale 50
+	width 90col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+columnbreak
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\left[\begin{array}{cc}
+0\\
+\vdots & \text{mutable}\\
+7\\
+- & \leftarrow\text{split at mut here}\\
+8\\
+\vdots & \text{immutable}\\
+15
+\end{array}\right]$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{multicols}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Frame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Frame
+\begin_inset Argument 4
+status collapsed
+
+\begin_layout Plain Layout
+Transport in higher dimensions
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Upwind scheme in 2D.
+ Dependency graph in the computations 
 \end_layout
 
 \begin_layout Standard
@@ -347,29 +630,15 @@ Rust implementation
 
 \begin_deeper
 \begin_layout Standard
-We have implemented the downwind algorithm in Rust: 
-\end_layout
+We have implemented the upwind algorithm in Rust with the 
+\begin_inset Quotes eld
+\end_inset
 
-\begin_layout Itemize
-Recent programming language (2010) oriented towards concision, speed and
- security.
- 
-\end_layout
+split at mut
+\begin_inset Quotes erd
+\end_inset
 
-\begin_layout Itemize
-Most common bugs are avoided at compile time: memory leaks and segfaults,
- uninitialized data, race conditions.
- 
-\end_layout
-
-\begin_layout Itemize
-Automatic parallelization tools: if the sequential code works, the parallel
- version is guaranteed to be correct.
- 
-\end_layout
-
-\begin_layout Itemize
-Fast.
+ trick.
  More details in 
 \begin_inset CommandInset citation
 LatexCommand cite
@@ -406,7 +675,7 @@ literal "false"
 status collapsed
 
 \begin_layout Plain Layout
-Numerical results
+Application to an electromagnetic solver
 \end_layout
 
 \end_inset
@@ -416,94 +685,42 @@ Numerical results
 
 \begin_deeper
 \begin_layout Itemize
-Maxwell's equation: 
-\begin_inset Formula $W=(E^{T},H^{T})^{T},$
-\end_inset
-
- with electric field 
-\begin_inset Formula $E\in\mathbb{R}^{3}$
-\end_inset
-
- and magnetic field 
-\begin_inset Formula $H\in\mathbb{R}^{3}$
-\end_inset
-
-.
+The transport solver is the building block of our CFL-less scheme for conservati
+on laws.
  
 \end_layout
 
 \begin_layout Itemize
-Maxwell flux: 
-\begin_inset Formula 
-\[
-Q(W,N)=\left(\begin{array}{c}
--N\times H\\
-N\times E
-\end{array}\right).
-\]
-
-\end_inset
-
-.
- 
+Unstructured mesh of the unit cube made with large and small cells.
+ A small electric wire at the middle of the mesh.
 \end_layout
 
 \begin_layout Itemize
-Unstructured mesh of the unit cube made with large and small cells 
+Resolution of the Maxwell equations.
 \end_layout
 
 \begin_layout Standard
 \align center
 \begin_inset Graphics
-	filename ../patapon/mhd/doc/img_beamer/mesh_refined.png
-	width 80text%
-
-\end_inset
-
- 
-\end_layout
-
-\end_deeper
-\begin_layout Standard
-\begin_inset Separator plain
-\end_inset
-
-
-\end_layout
-
-\begin_layout Frame
-\begin_inset Argument 4
-status collapsed
-
-\begin_layout Plain Layout
-Numerical results
-\end_layout
+	filename mesh-fil.png
+	lyxscale 30
+	width 50text%
 
 \end_inset
 
 
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-We compute a plane wave on the above mesh.
- 
-\end_layout
-
-\begin_layout Itemize
-We check second order accuracy and the CFL-less feature 
 \end_layout
 
 \begin_layout Standard
 \align center
 \begin_inset Graphics
-	filename ../patapon/mhd/doc/img_beamer/wave_cfl.png
-	lyxscale 50
+	filename resu-fil.png
+	lyxscale 30
 	width 80text%
 
 \end_inset
 
- 
+
 \end_layout
 
 \end_deeper
@@ -528,35 +745,24 @@ Conclusion
 \end_layout
 
 \begin_deeper
-\begin_layout Standard
-The kinetic approach is a generalization of the LBM: 
+\begin_layout Itemize
+Practical use of Rust in a scientific computing context.
 \end_layout
 
 \begin_layout Itemize
-Can handle arbitrary Mach flows.
- 
+Less bugs, which was the objective.
 \end_layout
 
 \begin_layout Itemize
-Very fast computations on Cartesian grids.
- 
+Automatic and robust parallelism.
 \end_layout
 
 \begin_layout Itemize
-Construction of CFL-free explicit DG scheme on unstructured meshes.
- 
+Friendly environment.
 \end_layout
 
 \begin_layout Itemize
-Equivalent equation: useful theoretical tool (stability analysis, boundary
- conditions, behavior of hidden variables).
- 
-\end_layout
-
-\begin_layout Standard
-Future works: boundary conditions, better parallelism (IMEX approach), other
- applications (cavitation).
- 
+Many other features, which we have not yet explored.
 \end_layout
 
 \end_deeper
