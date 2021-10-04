@@ -93,7 +93,7 @@ Philippe Helluy, Victor Michel-Dansac
 \end_layout
 
 \begin_layout Institute
-Université de Strasbourg, IRMA CNRS, Inria Tonus
+Inria Tonus
 \end_layout
 
 \begin_layout Section
@@ -563,7 +563,7 @@ end{multicols}
 status collapsed
 
 \begin_layout Plain Layout
-Transport in higher dimensions
+Upwind scheme in 2D or 3D
 \end_layout
 
 \end_inset
@@ -573,8 +573,7 @@ Transport in higher dimensions
 
 \begin_deeper
 \begin_layout Standard
-Upwind scheme in 2D.
- Dependency graph in the computations 
+Dependency graph of the computations 
 \end_layout
 
 \begin_layout Standard
@@ -691,7 +690,7 @@ on laws.
 \end_layout
 
 \begin_layout Itemize
-Unstructured mesh of the unit cube made with large and small cells.
+Unstructured mesh of the unit cube made of large and small cells.
  A small electric wire at the middle of the mesh.
 \end_layout
 
@@ -754,7 +753,7 @@ Less bugs, which was the objective.
 \end_layout
 
 \begin_layout Itemize
-Automatic and robust parallelism.
+Automatic, fast and robust parallelism.
 \end_layout
 
 \begin_layout Itemize
