@@ -420,6 +420,21 @@ It is recommended to use iterators for efficient and robust programs.
 Automatic parallelism with the rayon library, without race condition.
 \end_layout
 
+\begin_layout Itemize
+Source code at 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://github.com/phelluy/upwind_rs
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \end_deeper
 \begin_layout Standard
 \begin_inset Separator plain
