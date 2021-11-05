@@ -26,7 +26,7 @@ fn exact_sol(x: f64, t: f64) -> f64 {
 
 fn main() {
     println!("Init...");
-    let nx = 1000;
+    let nx = 1000000;
 
     let dx = L / nx as f64;
 
@@ -68,8 +68,8 @@ fn main() {
             .zip(un.par_iter().skip(1)) // skip the first element: shifted vector
             .for_each(|((u1, u0), v0)| *u1 = *u0 - C * dt / dx * (*v0 - *u0));
 
-        t += dt;
-        unp1[nx] = exact_sol(xc[0], t);
+        t = t + dt;
+        unp1[nx] = exact_sol(xc[nx], t);
 
         un.par_iter_mut()
             .zip(unp1.par_iter())
@@ -88,7 +88,7 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::io::Write;
 
-fn sauv_sol(t: f64, xc: &[f64], un: &[f64], filename: &str) {
+fn sauv_sol(t: f64, xc: &Vec<f64>, un: &Vec<f64>, filename: &str) {
     let meshfile = File::create(filename).unwrap();
     let mut meshfile = BufWriter::new(meshfile); // create a buffer for faster writes...
 
