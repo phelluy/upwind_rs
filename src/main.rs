@@ -26,7 +26,7 @@ fn exact_sol(x: f64, t: f64) -> f64 {
 
 fn main() {
     println!("Init...");
-    let nx = 1000000;
+    let nx = 1000;
 
     let dx = L / nx as f64;
 
