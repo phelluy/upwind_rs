@@ -26,7 +26,7 @@ fn exact_sol(x: f64, t: f64) -> f64 {
 
 fn main() {
     println!("Init...");
-    let nx = 1000;
+    let nx = 1000000;
 
     let dx = L / nx as f64;
 
@@ -69,7 +69,7 @@ fn main() {
             .for_each(|((u1, u0), v0)| *u1 = *u0 - C * dt / dx * (*v0 - *u0));
 
         t = t + dt;
-        unp1[nx] = exact_sol(xc[0], t);
+        unp1[nx] = exact_sol(xc[nx], t);
 
         un.par_iter_mut()
             .zip(unp1.par_iter())
