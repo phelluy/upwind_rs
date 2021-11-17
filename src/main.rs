@@ -5,6 +5,8 @@ use rayon::prelude::*;
 //extern crate faster;
 //use faster::*;
 
+use std::process::Command;
+
 const C: f64 = -1.;
 
 const L: f64 = 1.;
@@ -82,6 +84,10 @@ fn main() {
     sauv_sol(t, &xc, &un, "trans1.dat");
     // cannot use xc anymore: xc has been moved.
     //println!("xc={:?}",xc);
+    Command::new("gnuplot")
+        .arg("plotcom")
+        .status()
+        .expect("plot failed !");
 }
 
 use std::fs::File;
