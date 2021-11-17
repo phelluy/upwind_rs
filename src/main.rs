@@ -84,6 +84,7 @@ fn main() {
     sauv_sol(t, &xc, &un, "trans1.dat");
     // cannot use xc anymore: xc has been moved.
     //println!("xc={:?}",xc);
+    
     Command::new("gnuplot")
         .arg("plotcom")
         .status()
